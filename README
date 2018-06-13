@@ -1,0 +1,94 @@
+
+mass_upgrade.sh
+===============
+
+Antoine Zen-Ruffinen <antoine@riedonetworks.com>
+20.02.2018
+
+This script has can do mass upgrade of IPS devices or display firmware version. 
+For usage, use "./mass_upgrade.sh --help".
+
+Example:
+--------
+
+Let's consider we have a file, called "ip-list.txt" which contains the  following text:
+
+	192.168.1.54
+	192.168.1.57
+	192.168.1.97
+	192.168.1.201
+	192.168.1.2
+				
+On this list of IP addresses, 192.168.1.201 is a PC, 192.168.1.2 is not used and all other address are E3METER IPS devices.
+
+The script can then be used as follow, showing version and other informations:
+
+	$ ./mass_upgrade.sh -f ip-list.txt 
+	Using IP list file ip-list.txt
+
+	+------------------+--------+--------+-----------------+------------------+
+	|    IP address    | Model  | Serial | Verion (build)  | Label            |
+	+==================+========+========+=================+==================+
+	|     192.168.1.54 | RN1212 | 001238 |  4.2 ( 43d5186) |          Antoine |
+	+------------------+--------+--------+-----------------+------------------+
+	|     192.168.1.57 | RN1212 | 001236 |  4.2 ( 43d5186) |           Julian |
+	+------------------+--------+--------+-----------------+------------------+
+	|     192.168.1.97 | RN1212 | 001235 |  4.2 ( 43d5186) |            Nomad |
+	+------------------+--------+--------+-----------------+------------------+
+	|    192.168.1.201 | Not an IPS                                           |
+	+------------------+--------+--------+-----------------+------------------+
+	|      192.168.1.2 | Offline                                              |
+	+------------------+--------+--------+-----------------+------------------+
+	$
+
+
+To upgrade the devices in the list, the user must provide the firmware file on the command line:
+
+	$ ./mass_upgrade.sh -f ip-list.txt ips2_r4.2_43d5186_20170725.bin
+	Using IP list file ip-list.txt
+	Upgrade
+	Upgrading using FW "/home/antoine/git/misc-tools/ips-field-tools/ips2_r4.2_43d5186_20170725.bin" which contains version 4.2.
+	Transition FW : 
+	Upgradeing IPS "Antoine" at 192.168.1.54 from version 4.0 to 4.2...
+	######################################################################## 100.0%
+	Upgradeing IPS "Julian" at 192.168.1.57 from version 4.0 to 4.2...
+	######################################################################## 100.0%
+	Upgradeing IPS "Nomad" at 192.168.1.97 from version 4.0 to 4.2...
+	######################################################################## 100.0%
+	Device at 192.168.1.201 is not an IPS!
+	Device at 192.168.1.2 seems to be offline!
+	$
+
+
+A range can be also specified. It that case, the script will "probe" all addresses in the range:
+
+	$ ./mass_upgrade.sh -r 192.168.1.50 192.168.1.60 
+	Using IP range 192.168.1.50 -> 192.168.1.60
+
+	+------------------+--------+--------+-----------------+------------------+
+	|    IP address    | Model  | Serial | Verion (build)  | Label            |
+	+==================+========+========+=================+==================+
+	|    192.168.01.54 | RN1212 | 001238 |  4.2 ( 43d5186) |          Antoine |
+	+------------------+--------+--------+-----------------+------------------+
+	|    192.168.01.57 | RN1212 | 001236 |  4.2 ( 43d5186) |           Julian |
+	+------------------+--------+--------+-----------------+------------------+
+	$
+
+For an upgrade (with range option):
+
+	$ ./mass_upgrade.sh -r 192.168.1.50 192.168.1.60 ips2_r4.0_3056_20170103.bin 
+	Using IP range 192.168.1.50 -> 192.168.1.60
+	Upgrade
+	Upgrading using FW "/home/antoine/git/misc-tools/ips-field-tools/ips2_r4.0_3056_20170103.bin" which contains version 4.0.
+	Transition FW : 
+	192.168.01.54: Upgradeing IPS "Antoine" at 192.168.01.54 from version 4.2 to 4.0...
+	######################################################################## 100.0%
+	192.168.01.57: Upgradeing IPS "Julian" at 192.168.01.57 from version 4.2 to 4.0...
+	######################################################################## 100.0%
+
+
+
+
+Change log
+----------
+ - 20.02.2018: Initial release
