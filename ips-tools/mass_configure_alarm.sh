@@ -48,8 +48,8 @@ function send_fw()
 
 function do_ips_command()
 {
-	local IP=$1
-	local CMD=$2
+	local IP="$1"
+	local CMD="$2"
 	local LOG=$(expect << EOF
 	set ip_addr [lindex $argv 0]
 	spawn telnet $IP
@@ -68,6 +68,21 @@ EOF
 	echo "$LOG"
 
 }
+
+function do_ips_command_check()
+{
+	LOG=$(do_ips_command "$1" "$2")
+	#do_ips_command $1 "$2"
+	echo $LOG | grep "Command failed"
+	if [ $? -eq 0 ]
+	then
+		echo "Warning: Command \"$2\" Failed !"
+		#echo "LOG=\"$LOG\""
+		return 1
+	fi
+	return 0
+}
+
 
 function get_version()
 {
@@ -183,7 +198,30 @@ function usage() {
 
 
 
+CHANNEL_LIST=(
+	"current_l1"
+	"current_l2"
+	"current_l3"
+	"temp_int"
+	"temp_ext1"
+	"temp_ext2"
+	"rh_ext1"
+	"rh_ext2"
+)
+
+ALARM_LIST=(
+	"lo_crit"
+	"lo_warn"
+	"hi_warn"
+	"hi_crit"
+)
+
+
 ### MAIN ######################################################################
+
+
+#do_ips_command_check "192.168.1.76" "set alarm current_l1 na na na na"
+#exit 0
 
 ### Parse argument
 ME=$0
@@ -216,8 +254,17 @@ then
 	exit 1
 fi
 
+
 # Get arguments
 CONFIG="${POS_ARGS[0]}"
+
+
+# Check that the configuration file exists
+if [ ! -f "$CONFIG" ]
+then
+	echo "ERROR: No such file : \"$CONFIG\""
+	exit 1
+fi
 
 echo "Config file is \"$CONFIG\""
 
@@ -229,7 +276,7 @@ do
 	if (( i == 0))
 	then
 		# First line contains channels names
-		IFS=',' read -r -a CHANNLES <<< "$line"
+		IFS=',' read -r -a CHANNELS <<< "$line"
 	elif (( i == 1))
 	then
 		# Second lines contains alarms names
@@ -238,7 +285,62 @@ do
 		# All other lines contains alarm data
 		IFS=',' read -r -a DATA <<< "$line"
 		IP=${DATA[0]}
-		echo "Configuring $IP"
+
+		# Check that the device is on-line
+		if ! is_online $IP 
+		then
+			echo "WARNING: Device at \"$IP\" is offline !\""
+			continue
+		fi
+		VERSION=$(get_version $IP)
+		if [ ! $VERSION = "4.2" ]
+		then
+			echo "WARNING: IPS \"$(get_label $IP)\" at \"$IP\" has usupported firmware version (found \"$VERSION\", expected \"4.2\"). Skipped."
+			continue
+		fi
+
+		echo -n "Configuring $IP..."
+
+		CMD="set alarm "
+
+		# Iterate the possible channel list
+		for sChannel in "${CHANNEL_LIST[@]}"
+		do
+			# Cmd template
+			CMD="set alarm $sChannel"
+			#  Iterate the possible alarm list
+			for sAlarm in "${ALARM_LIST[@]}"
+			do
+				# Alram setpoint
+				SET="na"
+
+				# Iterate the configuration
+				for c_chan_indx in "${!CHANNELS[@]}"
+				do
+					cChannel="${CHANNELS[$c_chan_indx]}"
+					cAlarm="${ALARMS[$c_chan_indx]}"
+
+					# Match the configuration channel & alarm with the static list
+					if [ "$cChannel" == "$sChannel" ]  && [ "$cAlarm" == "$sAlarm" ]
+					then
+						DATA_VAL="${DATA[$c_chan_indx]}"
+						if [ ! -z "$DATA_VAL" ]
+						then
+							SET="$DATA_VAL"
+						fi
+					fi
+				done
+				CMD="$CMD $SET"
+			done
+			#echo $CMD
+			do_ips_command_check "$IP" "$CMD"
+		done
+
+		# save confiuration
+		do_ips_command_check $IP "conf save"
+		do_ips_command $IP "reboot" > /dev/null
+		echo "Done"
+
 
 	fi
 

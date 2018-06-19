@@ -1,0 +1,11 @@
+,current_l1,current_l1,current_l1,current_l1,current_l2,current_l2,current_l2,current_l2,current_l3,current_l3,current_l3,current_l3,temp_int,temp_ext1,temp_ext1,temp_ext1,temp_ext1,temp_ext1,temp_ext1,temp_ext1,temp_ext2,temp_ext2,temp_ext2,temp_ext2,rh_ext1,rh_ext1,rh_ext1,rh_ext1,rh_ext2,rh_ext2,rh_ext2,rh_ext2
+,lo_crit,lo_warn,hi_warn,hi_crit,lo_crit,lo_warn,hi_warn,hi_crit,lo_crit,lo_warn,hi_warn,hi_crit,lo_crit,lo_warn,hi_warn,hi_crit,lo_crit,lo_warn,hi_warn,hi_crit,lo_crit,lo_warn,hi_warn,hi_crit,lo_crit,lo_warn,hi_warn,hi_crit,lo_crit,lo_warn,hi_warn,hi_crit
+192.168.1.5,0.10,2.00,8.00,9.00,,,,12.00,,,,,,,,,,,55.00,60.00,10.00,15.00,35.00,40.00,,,,,,,,85.00
+192.168.1.6,0.10,2.00,8.00,9.00,,,,13.00,,,,,,,,,,,55.00,60.00,10.00,15.00,35.00,40.00,,,,,,,,85.00
+192.168.1.10,,,,,,,,14.00,,,,,,,,,,,55.00,60.00,10.00,15.00,35.00,40.00,,,,,,,,85.00
+192.168.1.11,,,,,,,,15.00,,,,,,,,,,,55.00,60.00,10.00,15.00,35.00,40.00,,,,,,,,85.00
+192.168.1.12,,,,,,,,16.00,,,,,,,,,,,55.00,60.00,,,,,,,,,,,,
+192.168.1.40,,,5.00,7.00,,,,17.00,,,,,,,,,,,55.00,60.00,,,,,,,,,,,,
+192.168.1.41,,,5.00,7.00,,,,18.00,,,,,,,,,,,55.00,60.00,,,,,,,,,,,,
+192.168.1.42,,,5.00,7.00,,,,19.00,,,,,,,,,,,60.00,65.00,,,,,10.00,20.00,80.00,90.00,,,,
+192.168.1.43,,,5.00,7.00,,,,20.00,,,,,,,,,,,60.00,65.00,,,,,10.00,20.00,80.00,90.00,,,,

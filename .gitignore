@@ -1,0 +1,8 @@
+# Ignore .csv file exept the example
+*.csv
+!ips-tools/alarm_example.csv
+
+# Ignore .ods file exept the example and tempate
+*.ods
+!ips-tools/alarm_example.ods
+!ips-tools/alarm_template.ods
