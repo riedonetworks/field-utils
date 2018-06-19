@@ -255,9 +255,8 @@ then
 fi
 
 
-# Get arguments
+# Get the positional arguments
 CONFIG="${POS_ARGS[0]}"
-
 
 # Check that the configuration file exists
 if [ ! -f "$CONFIG" ]
@@ -265,8 +264,6 @@ then
 	echo "ERROR: No such file : \"$CONFIG\""
 	exit 1
 fi
-
-echo "Config file is \"$CONFIG\""
 
 # For each line in the file...
 i=0
@@ -324,6 +321,8 @@ do
 					if [ "$cChannel" == "$sChannel" ]  && [ "$cAlarm" == "$sAlarm" ]
 					then
 						DATA_VAL="${DATA[$c_chan_indx]}"
+
+						# TODO Add a check of value (check that is a number)
 						if [ ! -z "$DATA_VAL" ]
 						then
 							SET="$DATA_VAL"
@@ -340,16 +339,6 @@ do
 		do_ips_command_check $IP "conf save"
 		do_ips_command $IP "reboot" > /dev/null
 		echo "Done"
-
-
 	fi
-
-
 	i=$i+1
 done < "$CONFIG"
-
-# echo ${CHANNLES[*]}
-# echo
-# echo ${ALARMS[*]}
-# echo
-# echo ${DATA[*]}
