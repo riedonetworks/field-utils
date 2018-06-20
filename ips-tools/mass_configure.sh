@@ -262,21 +262,6 @@ else
 	exit 1
 fi
 
-echo "IP_LIST=${IP_LIST[@]}"
-
-
-
-for i in ${!COMMANDS[@]}
-do
-	echo "COMMANDS[$i] = ${COMMANDS[i]}"
-
-done
-
-for i in ${!POS_ARGS[@]}
-do
-	echo "POS_ARGS[$i] = ${POS_ARGS[i]}"
-
-done
 
 # Check that no positional arugment is given
 if [ ${#POS_ARGS[@]} -gt 0 ]
