@@ -2,34 +2,34 @@
 
 # mass_configure_alarm.sh
 #
-# (c) 2018, Riedo Networks, Antoine Zen-Ruffinen <antoine@riedonetworks.com>
-#
 # This script can configure alarms base on a  matrix containing IPS devices
-# IP address and alarm configuration values
+# IP address and alarm configuration values. See help text (--help) for more.
 #
-# mass_upgrade.sh is free software: you can redistribute it and/or modify
+# Copyright (C) 2018, Riedo Networks Ltd
+#
+# This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
+# 
+# This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-#
+# 
 # You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
-
-########################################################
-# Change log:
-#  - 20.02.2018: Initial release
-########################################################
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+#
+#
+# Change log
+# ----------
+#
+#  - 20.06.2018: Initial release
+#
 
 ### Global variables ##########################################################
 
-RANGE_START=""
-RANGE_END=""
-IP_LIST_FILE=""
 TIMEOUT=1
 ALARM_FORMAT_RE='^[0-9]{1,2}([.][0-9]{1,2})?$'
 
@@ -37,7 +37,7 @@ ALARM_FORMAT_RE='^[0-9]{1,2}([.][0-9]{1,2})?$'
 
 # Function to send & updrade the FW.
 # Arg 1: IPS's IP address
-# Arg 2: Fiwmare file
+# Arg 2: Firmware file
 function send_fw()
 {
 	local IP=$1
@@ -73,7 +73,6 @@ EOF
 function do_ips_command_check()
 {
 	LOG=$(do_ips_command "$1" "$2")
-	#do_ips_command $1 "$2"
 	echo $LOG | grep "Command failed"
 	if [ $? -eq 0 ]
 	then
@@ -166,8 +165,8 @@ function probe_ips()
 	return 0
 }
 
-# Convert an IPv4 addres in WWW.XXX.YYY.ZZZ format to decimal number-
-# Arument 1: IP address in "dot notation"
+# Convert an IPv4 address in WWW.XXX.YYY.ZZZ format to decimal number-
+# Argument 1: IP address in "dot notation"
 # Return decimal number
 function ip2d()
 {
@@ -190,7 +189,7 @@ function usage() {
 	echo ""
 	echo "Do a batch/mass alarm configuration. IPS devices are accessed trough TCP/IP/Ethernet. IPS devices are referenced by they IP addresses. " | fold -s
 	echo ""
-	echo "The list of devices ant they configuration is given by a CSV file. In this CSV file, the first column is the IP address. If the first comumn is empty the line is discarded. The two first lines must contains headers. The first line contains the channel name. The second line contains the alarm level to set. Every other cell contains alarm configuration value that is matched to its line or column. The line gives the address (first column) and the column gives the channel and alarm name. Alarm level are real number with maximum two decimal places." | fold -s
+	echo "The list of devices ant they configuration is given by a CSV file. In this CSV file, the first column is the IP address. If the first column is empty the line is discarded. The two first lines must contains headers. The first line contains the channel name. The second line contains the alarm level to set. Every other cell contains alarm configuration value that is matched to its line or column. The line gives the address (first column) and the column gives the channel and alarm name. Alarm level are real number with maximum two decimal places." | fold -s
 	echo ""
 	echo "To help creating the configuration CSV file, the LibreOffice Calc document \"alarm_template.ods\" is provided. When exporting to CSV, make sure not to check \"Quote all text cells\" and to use the semi-column as field delimiter." | fold -s
 	echo ""
@@ -284,13 +283,13 @@ do
 		# Check that the device is on-line
 		if ! is_online $IP 
 		then
-			echo "WARNING: Device at \"$IP\" is offline (does not respond) !\""
+			echo "WARNING: Device at \"$IP\" is off-line (does not respond) !\""
 			continue
 		fi
 		VERSION=$(get_version $IP)
 		if [ ! $VERSION = "4.2" ]
 		then
-			echo "WARNING: IPS \"$(get_label $IP)\" at \"$IP\" has usupported firmware version (found \"$VERSION\", expected \"4.2\"). Skipped."
+			echo "WARNING: IPS \"$(get_label $IP)\" at \"$IP\" has unsupported firmware version (found \"$VERSION\", expected \"4.2\"). Skipped."
 			continue
 		fi
 
@@ -301,12 +300,12 @@ do
 		# Iterate the possible channel list
 		for sChannel in "${CHANNEL_LIST[@]}"
 		do
-			# Cmd template
+			# Command template
 			CMD="set alarm $sChannel"
 			#  Iterate the possible alarm list
 			for sAlarm in "${ALARM_LIST[@]}"
 			do
-				# Alram setpoint
+				# Alarm set-point
 				SET="na"
 
 				# Iterate the configuration
@@ -340,7 +339,7 @@ do
 			do_ips_command_check "$IP" "$CMD"
 		done
 
-		# save confiuration
+		# save configuration
 		do_ips_command_check $IP "conf save"
 		do_ips_command $IP "reboot" > /dev/null
 		echo "Done"
