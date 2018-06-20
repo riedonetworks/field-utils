@@ -188,16 +188,15 @@ function usage() {
 	echo ""
 	echo " Configure alarms on IPSs"
 	echo ""
-	echo "Do a batch/mass alarm configuration. IPS devices are accessed trough TCP/IP/Ethernet. IPS devices are referenced by they IP addresses. "
+	echo "Do a batch/mass alarm configuration. IPS devices are accessed trough TCP/IP/Ethernet. IPS devices are referenced by they IP addresses. " | fold -s
 	echo ""
-	echo "The list of devices ant they configuration is given by a CSV file. In this CSV file, the first column is the IP address. If the first comumn is empty the line is discarded. The two first lines must contains headers. The first line contains the channel name. The second line contains the alarm level to set. Every other cell contains alarm configuration value that is matched to its line or column. The line gives the address (first column). The column gives the channel and alarm name "
+	echo "The list of devices ant they configuration is given by a CSV file. In this CSV file, the first column is the IP address. If the first comumn is empty the line is discarded. The two first lines must contains headers. The first line contains the channel name. The second line contains the alarm level to set. Every other cell contains alarm configuration value that is matched to its line or column. The line gives the address (first column) and the column gives the channel and alarm name. Alarm level are real number with maximum two decimal places." | fold -s
 	echo ""
+	echo "To help creating the configuration CSV file, the LibreOffice Calc document \"alarm_template.ods\" is provided. When exporting to CSV, make sure not to check \"Quote all text cells\" and to use the semi-column as field delimiter." | fold -s
 	echo ""
 	echo "Options:"
 	echo "  -h, --help        Display this help and exit"
 }
-
-
 
 CHANNEL_LIST=(
 	"current_l1"
@@ -285,7 +284,7 @@ do
 		# Check that the device is on-line
 		if ! is_online $IP 
 		then
-			echo "WARNING: Device at \"$IP\" is offline !\""
+			echo "WARNING: Device at \"$IP\" is offline (does not respond) !\""
 			continue
 		fi
 		VERSION=$(get_version $IP)
