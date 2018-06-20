@@ -88,7 +88,66 @@ For an upgrade (with range option):
 
 
 
+ips-tools/mass_configure.sh
+===========================
 
-Change log
-----------
- - 20.02.2018: Initial release
+This script enable to send a command from the command line (the option value is passed "as is" to the IPS console") to an IP range or list like the "mass_upgrade.sh" script::
+
+
+	$ ./mass_configure.sh -c "set snmp_trap_reciver 192.168.1.1" -c "set snmp_trap_community my_comunity" -f ip_list.txt
+	$ ./mass_configure.sh -c "set snmp_trap_reciver 192.168.1.1+ -c "set snmp_trap_community" -r 192.168.1.10 192.168.1.35
+	$ ./mass_configure.sh -c "set alarm current_l1 1.00 2.00 9. 10.0" -r 192.168.1.10 192.168.1.35
+
+
+
+ips-tools/mass_configure_alarm.sh
+=================================
+
+
+Do a batch/mass alarm configuration. IPS devices are accessed trough 
+TCP/IP/Ethernet. IPS devices are referenced by they IP addresses. 
+
+On this topic, I propose to use CVS file as input for the script as it is
+easy to process and we could use a tabulator to set it up. 
+For example, this could be a template:
+
+.. image:: doc/oo_calc_template.png
+
+IP address in the first column, then the content is given by the header. 
+If a column is missing, then it is not set. So the user can simply delete the
+column he don't want to set. Empty cell means no alarm configured. 
+
+
+This view can be exported from Excel, Open-office as CSV as follow::
+
+
+	,current_l1,current_l1,current_l1,current_l1,current_l2,current_l2,current_l2,current_l2,current_l3,current_l3,current_l3,current_l3,temp_ext1,temp_ext1,temp_ext1,temp_ext1,temp_ext2,temp_ext2,temp_ext2,temp_ext2,rh_ext1,rh_ext1,rh_ext1,rh_ext1,rh_ext2,rh_ext2,rh_ext2,rh_ext2
+	,lo_crit,lo_warn,hi_warn,hi_crit,lo_crit,lo_warn,hi_warn,hi_crit,lo_crit,lo_warn,hi_warn,hi_crit,lo_crit,lo_warn,hi_warn,hi_crit,lo_crit,lo_warn,hi_warn,hi_crit,lo_crit,lo_warn,hi_warn,hi_crit,lo_crit,lo_warn,hi_warn,hi_crit
+	192.168.1.5,0.10,2.00,8.00,9.00,,,,12.00,,,,,,,55.00,60.00,10.00,15.00,35.00,40.00,,,,,,,,85.00
+	192.168.1.6,0.10,2.00,8.00,9.00,,,,13.00,,,,,,,55.00,60.00,10.00,15.00,35.00,40.00,,,,,,,,85.00
+	192.168.1.10,,,,,,,,14.00,,,,,,,55.00,60.00,10.00,15.00,35.00,40.00,,,,,,,,85.00
+	192.168.1.11,,,,,,,,15.00,,,,,,,55.00,60.00,10.00,15.00,35.00,40.00,,,,,,,,85.00
+	192.168.1.12,,,,,,,,16.00,,,,,,,55.00,60.00,,,,,,,,,,,,
+	192.168.1.40,,,5.00,7.00,,,,17.00,,,,,,,55.00,60.00,,,,,,,,,,,,
+	192.168.1.41,,,5.00,7.00,,,,18.00,,,,,,,55.00,60.00,,,,,,,,,,,,
+	192.168.1.42,,,5.00,7.00,,,,19.00,,,,,,,60.00,65.00,,,,,10.00,20.00,80.00,90.00,,,,
+	192.168.1.43,,,5.00,7.00,,,,20.00,,,,,,,60.00,65.00,,,,,10.00,20.00,80.00,90.00,,,,
+
+
+Each line  is for each PDU. If the first element is empty, then this is a header. 
+First element of the line is the IP. If the first column is empty the line 
+is discarded. The two first lines must contains headers. The first line 
+contains the channel name. The second line contains the alarm level to set. 
+Every other cell contains alarm configuration value that is matched to its line 
+or column. The line gives the address (first column) and the column gives the 
+channel and alarm name. Alarm level are real number with maximum two decimal 
+places.
+
+
+**Example**::
+
+	$ ./mass_configure_alarm.sh my_alarm_configuration.csv 
+	Configuring 192.168.1.57...Done
+	Configuring 192.168.1.71...Done
+	Configuring 192.168.1.76...Done
+	Configuring 192.168.1.97...Done
