@@ -31,6 +31,7 @@ RANGE_START=""
 RANGE_END=""
 IP_LIST_FILE=""
 TIMEOUT=1
+ALARM_FORMAT_RE='^[0-9]{1,2}([.][0-9]{1,2})?$'
 
 #################### FUNCTIONS #######################
 
@@ -220,8 +221,6 @@ ALARM_LIST=(
 ### MAIN ######################################################################
 
 
-#do_ips_command_check "192.168.1.76" "set alarm current_l1 na na na na"
-#exit 0
 
 ### Parse argument
 ME=$0
@@ -322,10 +321,17 @@ do
 					then
 						DATA_VAL="${DATA[$c_chan_indx]}"
 
-						# TODO Add a check of value (check that is a number)
+						
 						if [ ! -z "$DATA_VAL" ]
 						then
-							SET="$DATA_VAL"
+							# Check that the data is a real number
+							if [[ $DATA_VAL =~ $ALARM_FORMAT_RE
+						 ]] 
+							then
+								SET="$DATA_VAL"
+							else
+								echo "WARNING: Bad value \"$DATA_VAL\" for \"$cChannel $cAlarm\", not set."
+							fi
 						fi
 					fi
 				done

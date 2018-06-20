@@ -6,3 +6,6 @@
 *.ods
 !ips-tools/alarm_example.ods
 !ips-tools/alarm_template.ods
+
+# LibreOffice lock files
+.~lock*
