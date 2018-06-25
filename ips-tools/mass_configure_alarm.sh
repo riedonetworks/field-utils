@@ -182,6 +182,31 @@ function  d2ip()
 	echo ${a#0}.${b#0}.${c#0}.${d#0}
 }
 
+function check_version()
+{
+	# Argument 1 is minimum required version
+	# Argument 2 is given version
+	local MIN_VER
+	local GIVEN_VER
+	IFS='.' read -ra MIN_VER <<< "$1"
+	IFS='.' read -ra GIVEN_VER <<< "$2"
+
+	#echo "${GIVEN_VER[@]}"
+	#echo "${MIN_VER[@]}"
+	local i
+	for i in "${!GIVEN_VER[@]}"
+	do 
+		if [ "${GIVEN_VER[$i]}" -lt ${MIN_VER[$i]} ]
+		then
+			#echo "${GIVEN_VER[$i]} smaller than ${MIN_VER[$i]}, failed"
+			return 1
+		#else
+			#echo echo "${GIVEN_VER[$i]} greater or equal than ${MIN_VER[$i]}, OK"
+		fi
+	done
+	return 0
+}
+
 function usage() {
 	echo "Usage: $ME [-h] CONFIG_FILE.CSV"
 	echo ""
@@ -286,10 +311,13 @@ do
 			echo "WARNING: Device at \"$IP\" is off-line (does not respond) !\""
 			continue
 		fi
+
+		# Check that the device has a version greater than 4.2 (first release with alarms)
 		VERSION=$(get_version $IP)
-		if [ ! $VERSION = "4.2" ]
+		MINIMUM_VERSION="4.2"
+		if  ! check_version "$MINIMUM_VERSION" "$VERSION"
 		then
-			echo "WARNING: IPS \"$(get_label $IP)\" at \"$IP\" has unsupported firmware version (found \"$VERSION\", expected \"4.2\"). Skipped."
+			echo "WARNING: IPS \"$(get_label $IP)\" at \"$IP\" has unsupported firmware version (found \"$VERSION\", expected \">$MINIMUM_VERSION\"). Skipped." 
 			continue
 		fi
 
@@ -344,5 +372,9 @@ do
 		do_ips_command $IP "reboot" > /dev/null
 		echo "Done"
 	fi
-	i=$i+1
+	i=$(($i+1))
 done < "$CONFIG"
+
+echo "Script END"
+
+exit 0
