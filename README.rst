@@ -1,6 +1,6 @@
-==================================
-Riedo Networks Ltd Field utilities
-==================================
+============================
+Riedo Networks Ltd IPS tools
+============================
 
 This repository contains scripts and other tools that can be used on Riedo Networks's E3METER product line. It contains the following utilities:
 
