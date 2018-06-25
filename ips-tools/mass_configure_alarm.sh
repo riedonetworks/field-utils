@@ -289,14 +289,20 @@ fi
 
 # For each line in the file...
 i=0
+SUCESS=0
+OFFLINES=0
+BAD_VERION=0
+BAD_VALUE=0
+REMOTE_ERROR=0
 while read line
 do
+	i=$(($i+1))
 
-	if (( i == 0))
+	if (( i == 1))
 	then
 		# First line contains channels names
 		IFS=',' read -r -a CHANNELS <<< "$line"
-	elif (( i == 1))
+	elif (( i == 2))
 	then
 		# Second lines contains alarms names
 		IFS=',' read -r -a ALARMS <<< "$line"
@@ -309,6 +315,7 @@ do
 		if ! is_online $IP 
 		then
 			echo "WARNING: Device at \"$IP\" is off-line (does not respond) !\""
+			OFFLINES=$(($OFFLINES+1))
 			continue
 		fi
 
@@ -318,6 +325,7 @@ do
 		if  ! check_version "$MINIMUM_VERSION" "$VERSION"
 		then
 			echo "WARNING: IPS \"$(get_label $IP)\" at \"$IP\" has unsupported firmware version (found \"$VERSION\", expected \">$MINIMUM_VERSION\"). Skipped." 
+			BAD_VERION=$(($BAD_VERION+1))
 			continue
 		fi
 
@@ -357,6 +365,8 @@ do
 								SET="$DATA_VAL"
 							else
 								echo "WARNING: Bad value \"$DATA_VAL\" for \"$cChannel $cAlarm\", not set."
+								BAD_VALUE=$(($BAD_VALUE+1))
+								SUCESS=$(($SUCESS-1))
 							fi
 						fi
 					fi
@@ -364,17 +374,43 @@ do
 				CMD="$CMD $SET"
 			done
 			#echo $CMD
-			do_ips_command_check "$IP" "$CMD"
+			if ! do_ips_command_check "$IP" "$CMD"
+			then
+				REMOTE_ERROR=$(($REMOTE_ERROR+1))
+				SUCESS=$(($SUCESS-1))
+			fi
+
 		done
 
 		# save configuration
 		do_ips_command_check $IP "conf save"
 		do_ips_command $IP "reboot" > /dev/null
 		echo "Done"
+		SUCESS=$(($SUCESS+1))
 	fi
-	i=$(($i+1))
+
 done < "$CONFIG"
 
-echo "Script END"
+TOTAL_IPS=$(($i-2))
+
+# Print the resume
+echo
+echo "$SUCESS/$TOTAL_IPS IPS(s) devices configured with success"
+if [ "$OFFLINES" -gt "0" ]
+then
+	echo "$OFFLINES IPS(s) devices were off-line!"
+fi
+if [ "$BAD_VERION" -gt "0" ]
+then
+	echo "$BAD_VERION IPS(s) devices had unsupported firmware version!"
+fi
+if [ "$BAD_VALUE" -gt "0" ]
+then
+	echo "$BAD_VALUE Configuration setting had bad value in them!"
+fi
+if [ "$REMOTE_ERROR" -gt "0" ]
+then
+	echo "$REMOTE_ERROR IPS(s) devices reported an error!"
+fi
 
 exit 0
