@@ -4,14 +4,14 @@ Riedo Networks Ltd Field utilities
 
 This repository contains scripts and other tools that can be used on Riedo Networks's E3METER product line. It contains the following utilities:
 
-- ``scrpits/mass_upgrade.sh``: upgrade IPS devices in mass
-- ``scrpits/mass_configure.sh``: Execute commands on IPS devices in mass
-- ``scrpits/mass_configure_alarm.sh``: Configure IPS devices SNMP trap alarms in mass
+- ``scripts/mass_upgrade.sh``: upgrade IPS devices in mass
+- ``scripts/mass_configure.sh``: Execute commands on IPS devices in mass
+- ``scripts/mass_configure_alarm.sh``: Configure IPS devices SNMP trap alarms in mass
   
 For detailed description see bellow.
 
 
-scrpits/mass_upgrade.sh
+scripts/mass_upgrade.sh
 =========================
 
 This script has can do mass upgrade of IPS devices or display firmware version. 
@@ -96,7 +96,7 @@ For an upgrade (with range option)::
 	######################################################################## 100.0%
 
 
-scrpits/mass_configure.sh
+scripts/mass_configure.sh
 ===========================
 
 This script enable to send a command from the command line (the option value is passed "as is" to the IPS console") to an IP range or list like the "mass_upgrade.sh" script::
@@ -107,7 +107,7 @@ This script enable to send a command from the command line (the option value is 
 	$ ./mass_configure.sh -c "set alarm current_l1 1.00 2.00 9. 10.0" -r 192.168.1.10 192.168.1.35
 
 
-scrpits/mass_configure_alarm.sh
+scripts/mass_configure_alarm.sh
 =================================
 
 Do a batch/mass alarm configuration. IPS devices are accessed trough TCP/IP/Ethernet. IPS devices are referenced by they IP addresses. 
