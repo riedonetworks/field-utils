@@ -269,7 +269,9 @@ then
 	echo "ERROR: $ME does not use positional argument! (Did you forget to surround command with '\"' ?)" | fold -s
 	exit 1
 fi
-
+SUCCESS=0
+OFFLINES=0
+REMOTE_ERROR=0
 for IP in ${IP_LIST[@]}
 do
 	if is_online $IP
@@ -279,12 +281,33 @@ do
 		for i in ${!COMMANDS[@]}
 		do
 			CMD="${COMMANDS[i]}"
-			do_ips_command_check "$IP" "$CMD"
+			if do_ips_command_check "$IP" "$CMD"
+			then
+				SUCCESS=$(($SUCCESS+1))
+			else
+				REMOTE_ERROR=$((REMOTE_ERROR+1))
+			fi
+
 		done
 
 		echo DONE
 
 	else
 		echo "$IP is off-line  (does not response)."
+		OFFLINES=$(($OFFLINES+1))
 	fi
 done
+
+# Print a resume
+TOTAL_IPS=${#IP_LIST[@]}
+echo
+echo "$SUCCESS/$TOTAL_IPS IPS(s) devices configured with success"
+if [ "$OFFLINES" -gt "0" ]
+then
+	echo "$OFFLINES IPS(s) devices were off-line!"
+fi
+if [ "$REMOTE_ERROR" -gt "0" ]
+then
+	echo "$REMOTE_ERROR IPS(s) devices reported an error!"
+fi
+
