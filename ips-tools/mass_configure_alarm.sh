@@ -35,9 +35,9 @@ ALARM_FORMAT_RE='^[0-9]{1,2}([.][0-9]{1,2})?$'
 
 #################### FUNCTIONS #######################
 
-# Function to send & updrade the FW.
-# Arg 1: IPS's IP address
-# Arg 2: Firmware file
+# Function to send & upgrade the firmware.
+# Argument 1: IPS's IP address
+# Argument 2: Firmware file
 function send_fw()
 {
 	local IP=$1
@@ -175,7 +175,7 @@ function ip2d()
 	echo $(( ($1*256**3) + ($2*256**2) + ($3*256) + ($4) ))
 }
 
-# Convert an decimal number to IPv4 addres in WWW.XXX.YYY.ZZZ format-
+# Convert an decimal number to IPv4 address in WWW.XXX.YYY.ZZZ format-
 function  d2ip()
 {
 	IFS=" " read -r a b c d  <<< $(echo  "obase=256 ; $1" |bc)

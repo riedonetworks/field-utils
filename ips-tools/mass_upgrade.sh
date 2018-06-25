@@ -2,7 +2,7 @@
 
 # mass_upgrade.sh
 #
-# (c) 2018, Riedo Networks, Antoine Zen-Ruffinen <antoine@riedonetworks.com>
+# (c) 2018, Riedo Networks Ltd
 #
 # This script has can do mass upgrade of IPS devices. See help text for more information
 #
@@ -11,13 +11,13 @@
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Ansible is distributed in the hope that it will be useful,
+# This software is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+# along with tis software.  If not, see <http://www.gnu.org/licenses/>.
 
 ########################################################
 # Change log:
@@ -33,9 +33,9 @@ TIMEOUT=1
 
 #################### FUNCTIONS #######################
 
-# Function to send & updrade the FW.
-# Arg 1: IPS's IP address
-# Arg 2: Fiwmare file
+# Function to send & upgrade the Firmware.
+# Argument 1: IPS's IP address
+# Argument 2: Firmware file
 function send_fw()
 {
 	local IP=$1
@@ -111,7 +111,7 @@ function get_label()
 function is_online()
 {
 	local IP=$1
-	#nc -v -z -w $TIMEOUT $IP 80 
+
 	NC_TEXT=$(nc -v -z -w $TIMEOUT $IP 80 2>&1)
 	#echo "$NC_TEXT" 
 	echo "$NC_TEXT" | grep 'Connection refused\|succeeded' > /dev/null || return 1
@@ -143,14 +143,14 @@ function probe_ips()
 	# Test that we can get the "/about" page and that it contains "E3METER" somewhere
 	curl -4 http://$IP/about 2>/dev/null | grep E3METER > /dev/null || return 1
 
-	# Test TCP port 23: Telent
+	# Test TCP port 23: Telnet
 	nc -z -w $TIMEOUT $IP 23 || return 1
 
 	return 0
 }
 
-# Convert an IPv4 addres in WWW.XXX.YYY.ZZZ format to decimal number-
-# Arument 1: IP address in "dot notation"
+# Convert an IPv4 address in WWW.XXX.YYY.ZZZ format to decimal number-
+# Argument 1: IP address in "dot notation"
 # Return decimal number
 function ip2d()
 {
@@ -159,7 +159,7 @@ function ip2d()
 	echo $(( ($1*256**3) + ($2*256**2) + ($3*256) + ($4) ))
 }
 
-# Convert an decimal number to IPv4 addres in WWW.XXX.YYY.ZZZ format-
+# Convert an decimal number to IPv4 address in WWW.XXX.YYY.ZZZ format-
 function  d2ip()
 {
 	IFS=" " read -r a b c d  <<< $(echo  "obase=256 ; $1" |bc)
@@ -171,7 +171,7 @@ function usage() {
 	echo ""
 	echo " Upgrade IPS in mass or query version"
 	echo ""
-	echo "Does a batch/mass upgrade of IPS device or display the firwmare version of IPS devices. IPS devices are accessed trough TCP/IP/Ethernet. IPS devices are referenced by they IP addresses. "
+	echo "Does a batch/mass upgrade of IPS device or display the firmware version of IPS devices. IPS devices are accessed trough TCP/IP/Ethernet. IPS devices are referenced by they IP addresses. "
 	echo ""
 	echo "The list of devices to upgrade/query is ether given by a file ('-f' option) or by a range ('-r' option). The file ('-f' option) must contains one IP address per line. If the range is given ('r' option), the first address and the last address of the range must be provided. They can be blank address within the range."
 	echo ""
@@ -187,9 +187,9 @@ function usage() {
 	echo ""
 	echo "Options:"
 	echo "  -r, --range		  Specify the IP address range"
-	echo "  -f, --file        Specify a file containing one IP addres per line"
+	echo "  -f, --file        Specify a file containing one IP address per line"
 	echo "  -t, --timeout     Specify connection timeout (default=$TIMEOUT seconds)"
-	echo "  -u, --upgrade     Upgrade listed IPS. Default is display the fiwmare version."
+	echo "  -u, --upgrade     Upgrade listed IPS. Default is display the firmware version."
 	echo "  -h, --help        Display this help and exit"
 }
 
@@ -245,7 +245,7 @@ elif [ ! -z $RANGE_START ]  && [ ! -z $RANGE_END ]; then
 	    #IP_LIST=("$IP_LIST" "$(d2ip $i)")
 	done
 else
-	echo "No range or file provied (use \"$0 --help\" for help)"
+	echo "No range or file provided (use \"$0 --help\" for help)"
 	exit 1
 fi
 
@@ -271,7 +271,7 @@ if [ ${#POS_ARGS[@]} -gt "0" ]; then
 		# Print the device IP
 		#printf "Upgrading %16s ...\n" $IP
 
-		# Is the device online (reachable) ?
+		# Is the device on-line (reachable) ?
 		if [ -z $IP_LIST_FILE ]; then
 			printf "$IP: "
 		fi
@@ -281,18 +281,18 @@ if [ ${#POS_ARGS[@]} -gt "0" ]; then
 				IPS_VERSION="$(get_version $IP)"
 				IPS_LABEL="$(get_label $IP)"
 
-				# Is the FW older than 2.7? 
+				# Is the firmware older than 2.7? 
 				if [[ "$IPS_VERSION" < "$TRANSITION_VERSION" ]]; then
 					# Check that we have the firmware
 					if [ -z "$TRANSITION_FW_FILE" ]; then
-						echo "WARNING: IPS \"$IPS_LABEL\" at $IP need to be upgraded first to $TRANSITION_VERSION but fiwmare file is missing!"
+						echo "WARNING: IPS \"$IPS_LABEL\" at $IP need to be upgraded first to $TRANSITION_VERSION but firmware file is missing!"
 						continue
 					fi
 					# Upgrade to 2.7
-					echo "Upgradeing IPS \"$IPS_LABEL\" at $IP from version $IPS_VERSION to $TRANSITION_VERSION..."
+					echo "Upgrading IPS \"$IPS_LABEL\" at $IP from version $IPS_VERSION to $TRANSITION_VERSION..."
 					send_fw $IP $TRANSITION_FW_FILE
 
-					# Wait to be back online
+					# Wait to be back on-line
 					wait_online $IP
 					echo
 
@@ -303,7 +303,7 @@ if [ ${#POS_ARGS[@]} -gt "0" ]; then
 				# Is the version older that the most up-to-date firmware available ?
 				if [[ "$IPS_VERSION" != "$FW_FILE_VERSION" ]]; then
 					# Upgrade
-					echo "Upgradeing IPS \"$IPS_LABEL\" at $IP from version $IPS_VERSION to $FW_FILE_VERSION..."
+					echo "Upgrading IPS \"$IPS_LABEL\" at $IP from version $IPS_VERSION to $FW_FILE_VERSION..."
 					send_fw $IP $FW_FILE
 				else
 					# Tell the user that the device is fine!
@@ -311,14 +311,14 @@ if [ ${#POS_ARGS[@]} -gt "0" ]; then
 				fi
 				
 			elif [ ! -z $IP_LIST_FILE ]; then
-				# If the IP are getted from the file, display the status
+				# If the IP are read from the file, display the status
 				echo "Device at $IP is not an IPS!" 
 			else
 				printf "\r"
 			fi
 		elif [ ! -z $IP_LIST_FILE ]; then
-			# If the IP are getted from the file, display the status
-			echo "Device at $IP seems to be offline!" 
+			# If the IP are read from the file, display the status
+			echo "Device at $IP seems to be off-line!" 
 		else
 			printf "\r"
 		fi
@@ -327,12 +327,12 @@ if [ ${#POS_ARGS[@]} -gt "0" ]; then
 	exit 0
 else
 
-	### Query and print FW informations
+	### Query and print firmware informations
 
 	LINE_SEP="+------------------+--------+--------+-----------------+------------------+"
 	echo
 	echo $LINE_SEP
-	echo "|    IP address    | Model  | Serial | Verion (build)  | Label            |"
+	echo "|    IP address    | Model  | Serial | Version (build) | Label            |"
 	echo "+==================+========+========+=================+==================+"
 
 	for IP in ${IP_LIST[@]}
@@ -340,17 +340,17 @@ else
 		# Print the device IP
 		printf "| %16s " $IP
 
-		# Is the device online (reachable) ?
+		# Is the device on-line (reachable) ?
 		if is_online $IP ; then
 			#Is it an IPS ?
 			if probe_ips $IP; then
 				# Print info line
 				printf "| RN%04s | %04s | %04s (%08s) | %16s |\n" \
 					"$(get_model $IP)" "$(get_serial $IP)" "$(get_version $IP)" "$(get_build $IP)" "$(get_label $IP)"
-					# Print serparator
+					# Print separator
 				echo $LINE_SEP
 			elif [ ! -z $IP_LIST_FILE ]; then
-				# If the IP are getted from the file, display the status
+				# If the IP are read from the file, display the status
 				printf "| %-52s |\n" "Not an IPS" 
 				echo $LINE_SEP
 			else
@@ -358,8 +358,8 @@ else
 				printf "\r"
 			fi
 		elif [ ! -z $IP_LIST_FILE ]; then
-			# If the IP are getted from the file, display the status
-			printf "| %-52s |\n" "Offline" 
+			# If the IP are read from the file, display the status
+			printf "| %-52s |\n" "Off-line" 
 			echo $LINE_SEP
 		else
 			# Else, erase the line

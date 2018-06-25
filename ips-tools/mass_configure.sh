@@ -33,9 +33,9 @@ TIMEOUT=1
 
 #################### FUNCTIONS #######################
 
-# Function to send & updrade the FW.
-# Arg 1: IPS's IP address
-# Arg 2: Fiwmare file
+# Function to send & upgrade the firmware.
+# Argument 1: IPS's IP address
+# Argument 2: firmware file
 function send_fw()
 {
 	local IP=$1
@@ -157,7 +157,7 @@ function probe_ips()
 	# Test that we can get the "/about" page and that it contains "E3METER" somewhere
 	curl -4 http://$IP/about 2>/dev/null | grep E3METER > /dev/null || return 1
 
-	# Test TCP port 23: Telent
+	# Test TCP port 23: Telnet
 	nc -z -w $TIMEOUT $IP 23 || return 1
 
 	return 0
@@ -190,7 +190,7 @@ function usage() {
 	echo "Execute command on batch of IPS devices. IPS devices are accessed trough TCP/IP/Ethernet. IPS devices are referenced by they IP addresses. " | fold -s
 	echo ""
 	echo "The list of devices to address is ether given by a file ('-f' option) or by a range ('-r' option). The file ('-f' option) must contains one IP address per line. If the range is given ('-r' option), the first address and the last address of the range must be provided. They can be blank address within the range."| fold -s
-	echo "The commands to exectue on the devices are given using the '-c' options. If the command is more than a world, then the command must be surrounded with quote marks (\"). More that one command can be given. In that case, command are executed in order." | fold -s
+	echo "The commands to execute on the devices are given using the '-c' options. If the command is more than a world, then the command must be surrounded with quote marks (\"). More that one command can be given. In that case, command are executed in order." | fold -s
 	echo ""
 	echo "Options:"
 	echo "  -c, --command     Give the command to execute. Can be present"
@@ -258,12 +258,12 @@ elif [ ! -z $RANGE_START ]  && [ ! -z $RANGE_END ]; then
 	    #IP_LIST=("$IP_LIST" "$(d2ip $i)")
 	done
 else
-	echo "No range or file provied (use \"$0 --help\" for help)"
+	echo "No range or file provided (use \"$0 --help\" for help)"
 	exit 1
 fi
 
 
-# Check that no positional arugment is given
+# Check that no positional argument is given
 if [ ${#POS_ARGS[@]} -gt 0 ]
 then
 	echo "ERROR: $ME does not use positional argument! (Did you forget to surround command with '\"' ?)" | fold -s
